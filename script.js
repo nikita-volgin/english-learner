@@ -1,7 +1,6 @@
-selectLanguage()
+createButtons()
 
-
-function selectLanguage() {
+function createButtons() {
     createStartButton()
 
     function createStartButton() {
@@ -24,14 +23,14 @@ function selectLanguage() {
                 engButton.className = 'languageButton'
                 engButton.id = 'englishButton'
                 engButton.textContent = 'Английский'
-                engButton.addEventListener('click', () => startTesting('wordsEn'))
+                engButton.addEventListener('click', () => startTesting('word_variants_en'))
                 document.body.appendChild(engButton)
 
             let rusButton = document.createElement('button')
                 rusButton.className = 'languageButton'
                 rusButton.id = 'russianButton'
                 rusButton.textContent = 'Русский'
-                rusButton.addEventListener('click', () => startTesting('wordsRu'))
+                rusButton.addEventListener('click', () => startTesting('word_variants_ru'))
                 document.body.appendChild(rusButton)
         }
     }
@@ -39,7 +38,7 @@ function selectLanguage() {
 
 }
 
-function startTesting(wordsLng) {
+async function startTesting(wordsLng) {
     let hint = document.getElementById('hintForChoosingLanguage')
         document.body.removeChild(hint)
 
@@ -47,6 +46,33 @@ function startTesting(wordsLng) {
         document.body.removeChild(languageButton)
         languageButton = document. getElementById('russianButton')
         document.body.removeChild(languageButton)
+
+    let data = await getWords()
+
+    let randomWord = Math.floor(Math.random() * data[0][wordsLng].length)
+
+    let word = document.createElement('p')
+        word.id = 'word'
+        word.textContent = data[0][wordsLng][randomWord]
+        document.body.appendChild(word)
+
+    let nextWordButton = document.createElement('button')
+        nextWordButton.id = 'nextWord'
+        nextWordButton.textContent = 'Следующее'
+        nextWordButton.addEventListener('click', nextWord)
+        document.body.appendChild(nextWordButton)
+    
+    data.splice(0, 1)
+
+    function nextWord() {
+        if (data.length == 0) {
+            document.body.removeChild(word)
+            document.body.removeChild(nextWordButton)
+        } else {
+            word.textContent = data[0][wordsLng][randomWord]
+            data.splice(0, 1)
+        }
+    }
 }
 
 function addWord() {
@@ -54,12 +80,10 @@ function addWord() {
         words: [
             {
                  wordsEn: [
-                     "test",
-                     "test"
+                    "Banana"
                  ],
                  wordsRu: [
-                     "test",
-                     "2222"
+                    "Банан"
                  ]
             }
         ]
@@ -86,33 +110,28 @@ function deleteWord(id) {
     })
 }
 
-function getWords() {
-    fetch('http://localhost:3000/word-list', {
+async function getWords() {
+    const obj = await fetch('http://localhost:3000/word-list', {
         method: 'GET',
         //headers: {"Content-type": "application/json; charset=UTF-8"}
     })
-        .then(result => result.json())
-        .then(result => result)
+    const data = await obj.json()
 
+    return data
+        // .then(result => result.json())
+        // .then(result => (getData(result)))
 
-    function createElement(data) {
-        let pre = document.createElement('pre')
-
-        pre.textContent = data
-        document.body.appendChild(pre)
-    }
 }
 
 function updateWord(id) {
     let url = `http://localhost:3000/update-word?id=${id}`
     let data = {
-        "wordsEn": [
-            "йцук",
-            "фыва"
+        wordsEn: [
+            "Hello"
         ],
-        "wordsRu": [
-            "qwer",
-            "asdf"
+        wordsRu: [
+            "Привет",
+            "Здравствуйте"
         ]
     }
 
