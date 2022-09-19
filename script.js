@@ -53,14 +53,15 @@ async function preparingForTest(wordsLng, targetLang) {
 
     async function getNumberOfWords() {
         let data = await getAllWords()
-        console.log(data)
 
         let hintForNumberOfWords = document.createElement('p')
-            hintForNumberOfWords.id = 'hintForGetttingNumberOfWords'
+            hintForNumberOfWords.className = 'ElementsForGettingNumberOfWords'
+            hintForNumberOfWords.id = 'hintForGettingNumberOfWords'
             hintForNumberOfWords.textContent = 'Укажите желаемое количество слов'
             document.body.appendChild(hintForNumberOfWords)
 
         let inputForNumberOfWords = document.createElement('input')
+            inputForNumberOfWords.className = 'ElementsForGettingNumberOfWords'
             inputForNumberOfWords.id = 'inputForGettingNumberOfWords'
             inputForNumberOfWords.type = 'number'
             inputForNumberOfWords.addEventListener('oninput', key => {
@@ -68,11 +69,13 @@ async function preparingForTest(wordsLng, targetLang) {
             })
             inputForNumberOfWords.addEventListener( 'keyup', event => {
                 if( event.code === 'Enter' ) {
-                    if (inputForNumberOfWords.value == '') {
+                    if (inputForNumberOfWords.value == '' || inputForNumberOfWords.value == 0) {
+                        inputForNumberOfWords.value = ''
                         return alert('Укажите корректное значение')
                     }
     
                     if (inputForNumberOfWords.value > data.length) {
+                        inputForNumberOfWords.value = ''
                         return alert('В базе отсутсвует заданное количество слов')
                     }
     
@@ -82,15 +85,17 @@ async function preparingForTest(wordsLng, targetLang) {
             document.body.appendChild(inputForNumberOfWords)
 
         let buttonForNumberOfWords = document.createElement('button')
-            buttonForNumberOfWords.id = 'buttonForGetttingNumberOfWords'
+            buttonForNumberOfWords.className = 'ElementsForGettingNumberOfWords'
+            buttonForNumberOfWords.id = 'buttonForGettingNumberOfWords'
             buttonForNumberOfWords.textContent = 'Начать'
-            //buttonForNumberOfWords.disabled = true
             buttonForNumberOfWords.addEventListener('click', event => {
-                if (inputForNumberOfWords.value == '') {
+                if (inputForNumberOfWords.value == '' || inputForNumberOfWords.value == 0) {
+                    inputForNumberOfWords.value = ''
                     return alert('Укажите корректное значение')
                 }
 
                 if (inputForNumberOfWords.value > data.length) {
+                    inputForNumberOfWords.value = ''
                     return alert('В базе отсутсвует заданное количество слов')
                 }
 
@@ -103,13 +108,14 @@ async function preparingForTest(wordsLng, targetLang) {
 async function startTest(countOfWords, wordsLng, targetLang) {
     deleteElementsForGetNumberOfWords()
     
-    let data = await getWordsForTest(countOfWords)
+    let dataToShowWords = await getWordsForTest(countOfWords)
+    let wordsToTranslate = []
 
-    let randomWord = Math.floor(Math.random() * data[0][wordsLng].length)
+    let randomWord = Math.floor(Math.random() * dataToShowWords[0][wordsLng].length)
 
     let word = document.createElement('p')
             word.id = 'word'
-            word.textContent = data[0][wordsLng][randomWord]
+            word.textContent = dataToShowWords[0][wordsLng][randomWord]
             document.body.appendChild(word)
         
     let translateInput = document.createElement('input')
@@ -136,29 +142,24 @@ async function startTest(countOfWords, wordsLng, targetLang) {
     }
 
     function deleteElementsForGetNumberOfWords() {
-        let elem = document.getElementById('hintForGetttingNumberOfWords')
-        document.body.removeChild(elem)
+        let elements = document.body.querySelectorAll('.ElementsForGettingNumberOfWords')
 
-        elem = document.getElementById('inputForGettingNumberOfWords')
-        document.body.removeChild(elem)
-
-        elem = document.getElementById('buttonForGetttingNumberOfWords')
-        document.body.removeChild(elem)
+        for (let i = 0; i < elements.length; i++) document.body.removeChild(elements[i])
     }
 
     function nextWord() {
-        dataToCheck.words.push(new ObjectForAddTranslate(data[0].id ,translateInput.value))
-        data.splice(0, 1)
+        wordsToTranslate.push(word.textContent)
+        dataToCheck.words.push(new ObjectForAddTranslate(dataToShowWords[0].id ,translateInput.value))
+        dataToShowWords.splice(0, 1)
 
-        if (data.length == 0) {
+        if (dataToShowWords.length == 0) {
             document.body.removeChild(word)
             document.body.removeChild(translateInput)
-            let button = document.getElementById(nextWord)
             document.body.removeChild(nextWordButton)
 
             checkingData(dataToCheck)
         } else {
-            word.textContent = data[0][wordsLng][randomWord]
+            word.textContent = dataToShowWords[0][wordsLng][randomWord]
             translateInput.value = ''
         }
     }
@@ -171,13 +172,41 @@ async function startTest(countOfWords, wordsLng, targetLang) {
             headers: {"Content-type": "application/json; charset=UTF-8"}
         })
 
-        const returnData = await obj.json()
-
-        console.log(returnData);
+        const resultData = await obj.json()
         
-        return returnData
-
+        showResult(wordsToTranslate, resultData, dataToCheck)
     }
+}
+
+function showResult(wordsToTranslate, dataWithResults, dataWithUserTranslation) {
+    dataWithUserTranslation = [...dataWithUserTranslation.words]
+    // console.log(wordsToTranslate)
+    // console.log(dataWithResults)
+    // console.log(dataWithUserTranslation)
+
+    for (let i = 0; i < wordsToTranslate.length; i++) {
+        let wordToTranslate = document.createElement('p')
+            wordToTranslate.className = 'resultElements'
+            wordToTranslate.textContent = wordsToTranslate[i]
+            document.body.appendChild(wordToTranslate)
+
+        let userAnswer = document.createElement('p')
+            userAnswer.className = dataWithResults[i].passed ? 'resultElements correctTranslate' : 'resultElements incorrectTranslate'
+            userAnswer.textContent = dataWithUserTranslation[i].translation
+            document.body.appendChild(userAnswer)
+            
+    }
+
+    let again = document.createElement('button')
+        again.className = 'resultElements'
+        again.textContent = 'Повторить'
+        again.addEventListener('click', () => {
+            let elements = document.body.querySelectorAll('.resultElements')
+            for (let i = 0; i < elements.length; i++) document.body.removeChild(elements[i])
+
+            createButtons()
+        })
+        document.body.appendChild(again)
 }
 
 function addWord() {
