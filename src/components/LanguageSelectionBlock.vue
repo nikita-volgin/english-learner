@@ -16,7 +16,7 @@
 
 <script>
     export default {
-        name: "ChooseLanguage",
+        name: "LanguageSelectionBlock",
     }
 </script>
 

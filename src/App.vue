@@ -7,29 +7,44 @@
       Начать
     </button>
 
-    <choose-language
+    <language-selection-block
       @clickLng="lng => {
-        selectedLanguage = lng
         step++
+        selectedLanguage = lng
       }"
       v-if="step === 2"
     />
 
-    <get-number-of-words
+    <words-amount-block
       v-if="step === 3"
       @numberOf="number => {
-        numberOfWords = number
         step++
+        numberOfWords = number
       }"
     />
 
-    {{ numberOfWords }}
+    <testing-block
+      v-if="step === 4"
+      :numberOf="numberOfWords"
+      :language="selectedLanguage"
+      @endTesting="(array) => {
+        step++
+        
+        this.dataWithUserTranslation = [...array[0].words]
+        this.wordsToTranslate = array[1]
+        this.verifiedData = array[2]
+      }"
+    />
+    {{ dataWithUserTranslation }}
+    {{ wordsToTranslate }}
+    {{ verifiedData }}
   </div>
 </template>
 
 <script>
-  import ChooseLanguage from "./components/ChooseLanguage.vue"
-  import GetNumberOfWords from "./components/GetNumberOfWords.vue"
+  import LanguageSelectionBlock from "./components/LanguageSelectionBlock.vue"
+  import WordsAmountBlock from "./components/WordsAmountBlock.vue"
+  import TestingBlock from "./components/TestingBlock.vue";
 
   export default {
     name: 'App',
@@ -38,11 +53,15 @@
         step: 1,
         selectedLanguage: '',
         numberOfWords: 0,
+        dataWithUserTranslation: [],
+        wordsToTranslate: [],
+        verifiedData: [],
       }
     },
     components: {
-      ChooseLanguage,
-      GetNumberOfWords,
+      LanguageSelectionBlock,
+      WordsAmountBlock,
+      TestingBlock,
     },
     methods: {
 

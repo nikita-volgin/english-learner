@@ -15,8 +15,6 @@
             :textOfError="error"
             :hintOfError="hint"
         />
-
-        <div>{{ data }}</div>
     </div>
 </template>
 
@@ -24,7 +22,7 @@
     import ModalWindow from "./ModalWindow.vue"
 
     export default {
-        name: "GetNumberOfWords",
+        name: "WordsAmountBlock",
         components: {
             ModalWindow
         },
