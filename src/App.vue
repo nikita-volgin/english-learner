@@ -1,50 +1,14 @@
 <template>
   <div id="wrapper">
-    <button
-      @click="step++"
-      v-if="step === 1"
-    >
-      Начать
-    </button>
-
-    <language-selection-block
-      @clickLng="lng => {
-        step++
-        selectedLanguage = lng
-      }"
-      v-if="step === 2"
-    />
-
-    <words-amount-block
-      v-if="step === 3"
-      @numberOf="number => {
-        step++
-        numberOfWords = number
-      }"
-    />
-
-    <testing-block
-      v-if="step === 4"
-      :numberOf="numberOfWords"
-      :language="selectedLanguage"
-      @endTesting="(array) => {
-        step++
-        
-        this.dataWithUserTranslation = [...array[0].words]
-        this.wordsToTranslate = array[1]
-        this.verifiedData = array[2]
-      }"
-    />
-    {{ dataWithUserTranslation }}
-    {{ wordsToTranslate }}
-    {{ verifiedData }}
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
   import LanguageSelectionBlock from "./components/LanguageSelectionBlock.vue"
   import WordsAmountBlock from "./components/WordsAmountBlock.vue"
-  import TestingBlock from "./components/TestingBlock.vue";
+  import TestingBlock from "./components/TestingBlock.vue"
+  import ShowResultBlock from "./components/ShowResultBlock.vue"
 
   export default {
     name: 'App',
@@ -56,15 +20,23 @@
         dataWithUserTranslation: [],
         wordsToTranslate: [],
         verifiedData: [],
+        translationWords: [],
       }
     },
     components: {
       LanguageSelectionBlock,
       WordsAmountBlock,
       TestingBlock,
+      ShowResultBlock,
     },
     methods: {
 
+    },
+    mounted() {
+      this.$router.push({
+            path: '/start',
+            query: { step: 1 }
+        }).catch(()=>{})
     }
   }
 </script>

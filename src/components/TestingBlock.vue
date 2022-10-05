@@ -30,6 +30,8 @@
         async mounted() {
             this.data = await this.getWordsForTest(this.numberOf)
 
+            this.getTranslatedWords([...this.data])
+
             this.word = this.randomWord(this.data[0][this.language])
 
         },
@@ -39,12 +41,22 @@
                 let url = `http://localhost:3000/get-test?wordsAmount=${number}`
                 const obj = await fetch(url, {
                     method: 'GET',
-                    //headers: {"Content-type": "application/json; charset=UTF-8"}
                 })
 
                 const data = await obj.json()
 
                 return data
+            },
+            getTranslatedWords(data) {
+                let translationWords = []
+                let language = 'word_variants_' + ((this.language.slice(-2) === 'ru') ? 'en' : 'ru')
+
+                for (let value of data){
+                    translationWords.push(this.randomWord(value[language]))
+                }
+                
+                this.$emit('onGettingTranslationWords', translationWords)
+                
             },
             async checkingData(data) {
 
@@ -64,7 +76,6 @@
             nextWord() {
                 this.wordsToTranslate.push(this.word)
 
-                //this.dataToCheck.words.push(new ObjectForAddTranslate(this.data[0].id, this.translate))
                 this.dataToCheck.words.push({
                     id: this.data[0].id, 
                     translation: this.translate,
