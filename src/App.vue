@@ -5,29 +5,16 @@
 </template>
 
 <script>
-  import LanguageSelectionBlock from "./components/LanguageSelectionBlock.vue"
-  import WordsAmountBlock from "./components/WordsAmountBlock.vue"
-  import TestingBlock from "./components/TestingBlock.vue"
-  import ShowResultBlock from "./components/ShowResultBlock.vue"
 
   export default {
     name: 'App',
     data() {
       return {
-        step: 1,
-        selectedLanguage: '',
-        numberOfWords: 0,
-        dataWithUserTranslation: [],
-        wordsToTranslate: [],
-        verifiedData: [],
-        translationWords: [],
+        
       }
     },
     components: {
-      LanguageSelectionBlock,
-      WordsAmountBlock,
-      TestingBlock,
-      ShowResultBlock,
+     
     },
     methods: {
 
